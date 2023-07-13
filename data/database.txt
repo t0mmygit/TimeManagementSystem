@@ -1,0 +1,13 @@
+2022379910,Madam Nasrah Binti Naharu,CSC116
+2022486053,Madam Nowyannie Willie D. Tamsin,MAT133
+2022531735,Madam Norah Binti Tuah,CSC159
+2022683204,Dr. Ung Ling Ling,CSC126
+2022683204,Dr. Ung Ling Ling,CSC253
+2022745631,Dr. Khairul Anwar,CSC186
+2022761959,Tommy Chin Li Wei,CSC159
+2022761959,Tommy Chin Li Wei,ELC151
+2022761959,Tommy Chin Li Wei,HPD135
+2022761959,Tommy Chin Li Wei,ACC117
+2022761959,Tommy Chin Li Wei,IDA153
+2022762099,Chad Isaiah Donny,ELC151
+2022781633,Norliana Binti Idris,CSC186
