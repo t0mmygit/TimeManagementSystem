@@ -2,203 +2,182 @@ package src;
 
 import javax.swing.*;
 
-public class TimeManagementMain
-{
-    public static void MessageOptionPane(int number)
+public class TimeManagementMain {
+    public static void MessageOptionPane(String status)
     {
-        if (number == 0) {
+        if (status.equalsIgnoreCase("failed")) {
             JOptionPane.showMessageDialog(null,"Invalid input, Please try again!","Alert", JOptionPane.WARNING_MESSAGE);
-        } else if (number == 1) {
+        } else if (status.equalsIgnoreCase("success")) {
             JOptionPane.showMessageDialog(null,"Updated Successfully!");
         }
     }
 
     public static void clearTerminal() {
         System.out.print('\u000c');
-    }
+    } // This will only work on certain Terminal/Console
 
-    public static void main(String[] args)
-    {
-        Staff staff = new Staff();
-        Student std = new Student();
+    public static void main(String[] args) {
+        Timetable timetable = new Timetable();;
         Course course = new Course();
-        Timetable tt = new Timetable();
 
-        // PHASE 1 - USER'S VERIFICATION (ID)
-        boolean newUser = true;
-        while (newUser) {
-            int selection = 0;
-            boolean verificationID = false;
-            boolean repeatSelection = false;
+        do {
+            boolean verificationStatus = false;
+            int occupationType = User.chooseOccupation();
+            if (occupationType == 1) { // Staff Interaction
+                Staff staff = new Staff();
+                User.greet();
 
-            while (!repeatSelection) {
-                String ID = null;
-                selection = User.chooseOccupation();
-                if (selection == 1 || selection == 2) {
-                    User.greet();
-                    repeatSelection = true;
+                while (!verificationStatus) {
+                    String staffID = staff.insertUserID(occupationType);
+                    staff.setStaffID(staffID);
+                    verificationStatus = staff.verificationID();
 
-                    while (!verificationID) {
-                        if (selection == 1) { // Staff
-                            ID = staff.insertUserID(selection);
-                            staff = new Staff(ID);
-                            verificationID = staff.verificationID();
-
-                            if (verificationID) {
-                                JOptionPane.showMessageDialog(null,"Login Successfully!\nWelcome, " + staff.getName() + "!");
-                                clearTerminal();
-                            } else {
-                                MessageOptionPane(0);
-                            }
-                        } else { // Student
-                            ID = std.userID(selection);
-                            std = new Student(ID);
-                            verificationID = std.verificationID();
-
-                            if (verificationID) {
-                                JOptionPane.showMessageDialog(null,"Login Successfully!\nWelcome, " + std.getName() + "!");
-                                clearTerminal();
-                            } else {
-                                MessageOptionPane(0);
-                            }
+                    if (verificationStatus) {
+                        JOptionPane.showMessageDialog(null,
+                                "Login Successfully! \nWelcome, " + staff.getName() + "!");
+                    } else {
+                        String[] button = { "Yes", "No"};
+                        int option = JOptionPane.showOptionDialog(null, "Invalid Input! Would you like to continue?", "Input ID",
+                                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, button, null);
+                        if (option != 0){
+                            break;
                         }
-                    }
-                } else {
-                    int result = JOptionPane.showConfirmDialog(null,"Are you sure to exit the program?","Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
-                    if (result == JOptionPane.YES_OPTION) {
-                        JOptionPane.showMessageDialog(null,"Program Terminated!","Alert",JOptionPane.WARNING_MESSAGE);
-                        System.exit(0);
                     }
                 }
-            }
-            // PHASE 2: MENU SELECTION FOR STAFF & STUDENT
-            if (selection == 1) { // Staff
-                String option = null;
-                boolean displayMenu = true;
-                do {
-                    if (displayMenu) {
-                        staff.displayDetails();
-                        staff.menu();
-                    }
-                    displayMenu = true;
+                if (verificationStatus) {
+                    staff.displayDetails();
+                }
+
+                while (verificationStatus) {
+                    staff.menu();
+                    String option = null;
                     while (true) {
-                        option = JOptionPane.showInputDialog(null,"Please choose between [1][2][3][4]","Selection", JOptionPane.PLAIN_MESSAGE);
+                        option = JOptionPane.showInputDialog(null,
+                                "Please choose between [1][2][3][4]","Selection", JOptionPane.PLAIN_MESSAGE);
                         if (option == null) {
-                            JOptionPane.showMessageDialog(null,"Please enter (4) to exit the program!","Alert", JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(null,
+                                    "Please enter (4) to exit the program!","Alert",JOptionPane.WARNING_MESSAGE);
                         } else if (option.equals("")) {
-                            MessageOptionPane(0);
+                            MessageOptionPane("failed");
                         } else {
                             break;
                         }
                     }
-                    try {
-                        int optionNum = Integer.parseInt(option);
-                        if (optionNum == 1) {
-                            while (true) {
-                                clearTerminal();
-                                staff.displayDetails();
-                                staff.menu();
-                                course.displayCourse(selection, staff);
-                                course.addNewCourse();
-                                int choice = JOptionPane.showConfirmDialog(null, "Would you like to continue adding new course?", "Add new course", JOptionPane.YES_NO_OPTION);
-                                if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
-                                    clearTerminal();
-                                    break;
-                                }
-                            }
-                        } else if (optionNum == 2) {
-                            tt.displayTimetable(staff.getID(), 1, optionNum);
-                            displayMenu = false;
-                        } else if (optionNum == 3) {
-                            tt.displayTimetable(std.getID(), 1, optionNum);
-                            displayMenu = false;
-                        } else if (optionNum == 4) {
-                            int result = JOptionPane.showConfirmDialog(null,"Are you sure you would like to Logout?","Logout",JOptionPane.YES_NO_OPTION);
-                            if (result == JOptionPane.YES_OPTION) {
-                                JOptionPane.showMessageDialog(null,"You've been logged out!","Alert",JOptionPane.WARNING_MESSAGE);
-                                System.out.print('\u000c');
+                    int optionNum = Integer.parseInt(option);
+                    if (optionNum == 1) {
+                        while (true) {
+                            course.displayCourse(occupationType, staff);
+                            course.addNewCourse();
+                            int choice = JOptionPane.showConfirmDialog(null,
+                                    "Would you like to continue adding new course?", "Add new course", JOptionPane.YES_NO_OPTION);
+                            if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
                                 break;
-                            } else {
-                                displayMenu = false;
                             }
-                        } else {
-                            MessageOptionPane(0);
-                            displayMenu = false;
                         }
-                    } catch (NumberFormatException NFE) {
-                        MessageOptionPane(0);
-                        displayMenu = false;
+                    } else if (optionNum == 2) {
+                        timetable.displayTimetable(staff.getID(), occupationType, optionNum);
+                    } else if (optionNum == 3) {
+                        timetable.displayTimetable(null, occupationType, optionNum);
+                    } else if (optionNum == 4) {
+                        int result = staff.logout();
+                        if (result == 0) {
+                            break;
+                        }
                     }
-                } while (true);
-            }
-            // STUDENT MENU(2)
-            if (selection == 2) {
-                String option = null;
-                boolean repeatStudentMenu = true;
-                boolean displayMenu = true;
-                do {
-                    if (displayMenu) {
-                        std.displayDetails();
-                        std.menu();
+                }
+            } else if (occupationType == 2) { // Student Interaction
+                Student student = new Student();
+
+                User.greet();
+                while (!verificationStatus) {
+                    String studentID = student.insertUserID(occupationType);
+                    student.setStudentID(studentID);
+                    verificationStatus = student.verificationID();
+
+                    if (verificationStatus) {
+                        JOptionPane.showMessageDialog(null,
+                                "Login Successfully! \nWelcome, " + student.getName() + "!");
+                        clearTerminal();
+                    } else {
+                        String[] button = { "Yes", "No"};
+                        int option = JOptionPane.showOptionDialog(null, "Invalid Input! Would you like to continue?", "Input ID",
+                                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, button, null);
+                        if (option != 0){
+                            break;
+                        }
                     }
-                    displayMenu = true;
+                }
+                if (verificationStatus) {
+                    StudentType studentType = student.getStudentType();
+                    if (studentType.equals(StudentType.NORMAL)) {
+                        Student nStudent = new NormalStudent(student);
+                        nStudent.displayDetails();
+                    } else if (studentType.equals(StudentType.REPEATER)) {
+                        Student rStudent = new RepeaterStudent(student);
+                        rStudent.displayDetails();
+                    } else {
+                        Student dsStudent = new DistanceStudyStudent(student);
+                        dsStudent.displayDetails();
+                    }
+                }
+
+                while (verificationStatus) {
+                    student.menu();
+                    String option = null;
                     while (true) {
-                        option = JOptionPane.showInputDialog(null,"Please choose between [1][2][3][4]","Selection",JOptionPane.PLAIN_MESSAGE);
+                        option = JOptionPane.showInputDialog(null,
+                                "Please choose between [1][2][3][4]","Selection", JOptionPane.PLAIN_MESSAGE);
                         if (option == null) {
                             JOptionPane.showMessageDialog(null,"Please enter (4) to exit the program!","Alert",JOptionPane.WARNING_MESSAGE);
-                        } else if (option.equals("")){
-                            MessageOptionPane(0);
+                        } else if (option.equals("")) {
+                            MessageOptionPane("failed");
                         } else {
                             break;
                         }
                     }
-                    try {
-                        int optionNum = Integer.parseInt(option);
-                        if (optionNum == 1) {
-                            tt.displayTimetable(std.getID(), 2, optionNum);
-                            displayMenu = false;
-                        } else if (optionNum == 2) {
-                            while (true) {
-                                clearTerminal();
-                                std.displayDetails();
-                                std.menu();
-                                course.enrollCourse(std);
-                                int choice = JOptionPane.showConfirmDialog(null, "Would you like to register another course?", "Confirmation", JOptionPane.YES_NO_OPTION);
-                                clearTerminal();
+                    int optionNum = Integer.parseInt(option);
+                    if (optionNum == 1) {
+                        timetable.displayTimetable(student.getID(), occupationType, optionNum);
+                    } else if (optionNum == 2) {
+                        while(true) {
+                            course.enrollCourse(student);
+                            int choice = JOptionPane.showConfirmDialog(null,
+                                    "Would you like to register another course?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                            if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
+                                break;
+                            }
+                        }
+                    } else if (optionNum == 3) {
+                        while (true) {
+                            boolean dropped = course.dropCourse(student);
+                            if (dropped) {
+                                int choice = JOptionPane.showConfirmDialog(null,
+                                        "Would you like to drop another course?", "Confirmation", JOptionPane.YES_NO_OPTION);
                                 if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
                                     break;
                                 }
-                            }
-                        } else if (optionNum == 3) {
-                            while (true) {
-                                clearTerminal();
-                                std.displayDetails();
-                                std.menu();
-                                boolean valid = course.dropCourse(std);
-                                if (valid) {
-                                    int choice = JOptionPane.showConfirmDialog(null, "Would you like to drop another course?", "Confirmation", JOptionPane.YES_NO_OPTION);
-                                    if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
-                                        break;
-                                    }
-                                }
-                            }
-                        } else if (optionNum == 4) {
-                            int result = std.logout();
-                            if (result == 0) {
-                                repeatStudentMenu = false;
                             } else {
-                                displayMenu = false;
+                                break;
                             }
-                        } else {
-                            MessageOptionPane(0);
-                            displayMenu = false;
                         }
-                    } catch (NumberFormatException NFE) {
-                        MessageOptionPane(0);
-                        displayMenu = false;
+                    } else if (optionNum == 4) {
+                        int result = student.logout();
+                        if (result == 0) {
+                            break;
+                        }
+                    } else {
+                        MessageOptionPane("failed");
                     }
-                } while (repeatStudentMenu);
+                }
+            } else {
+                int result = JOptionPane.showConfirmDialog(null,
+                        "Are you sure to exit the program?","Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+
+                if (result == JOptionPane.YES_OPTION) {
+                    JOptionPane.showMessageDialog(null,"Program Terminated!","Alert",JOptionPane.WARNING_MESSAGE);
+                    System.exit(0);
+                }
             }
-        }
+        } while(true);
     }
 }
