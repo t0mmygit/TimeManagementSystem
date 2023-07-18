@@ -1,5 +1,5 @@
 # Setup 
-Visual Studio Code: https://code.visualstudio.com/download
+Intellij Community Edition: https://www.jetbrains.com/idea/download/?fromIDE=#section=windows
 
 # Database
 refer to README_DATABASE.md
