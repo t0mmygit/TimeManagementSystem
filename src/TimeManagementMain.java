@@ -33,34 +33,34 @@ public class TimeManagementMain
 
             while (!repeatSelection) {
                 String ID = null;
-                selection = staff.askVerify();
+                selection = User.chooseOccupation();
                 if (selection == 1 || selection == 2) {
-                    staff.greet();
+                    User.greet();
                     repeatSelection = true;
-                    while (!verificationID)
-                    {
+
+                    while (!verificationID) {
                         if (selection == 1) { // Staff
-                            ID = staff.userID(selection);
+                            ID = staff.insertUserID(selection);
                             staff = new Staff(ID);
                             verificationID = staff.verificationID();
+
                             if (verificationID) {
                                 JOptionPane.showMessageDialog(null,"Login Successfully!\nWelcome, " + staff.getName() + "!");
                                 clearTerminal();
                             } else {
                                 MessageOptionPane(0);
                             }
-                        } else if (selection == 2) { // Student
+                        } else { // Student
                             ID = std.userID(selection);
                             std = new Student(ID);
                             verificationID = std.verificationID();
+
                             if (verificationID) {
                                 JOptionPane.showMessageDialog(null,"Login Successfully!\nWelcome, " + std.getName() + "!");
                                 clearTerminal();
                             } else {
                                 MessageOptionPane(0);
                             }
-                        } else {
-                            MessageOptionPane(0);
                         }
                     }
                 } else {
@@ -72,13 +72,12 @@ public class TimeManagementMain
                 }
             }
             // PHASE 2: MENU SELECTION FOR STAFF & STUDENT
-            // STAFF MENU(1)
-            if (selection == 1) {
+            if (selection == 1) { // Staff
                 String option = null;
                 boolean displayMenu = true;
                 do {
                     if (displayMenu) {
-                        staff.display();
+                        staff.displayDetails();
                         staff.menu();
                     }
                     displayMenu = true;
@@ -97,7 +96,7 @@ public class TimeManagementMain
                         if (optionNum == 1) {
                             while (true) {
                                 clearTerminal();
-                                staff.display();
+                                staff.displayDetails();
                                 staff.menu();
                                 course.displayCourse(selection, staff);
                                 course.addNewCourse();
@@ -139,7 +138,7 @@ public class TimeManagementMain
                 boolean displayMenu = true;
                 do {
                     if (displayMenu) {
-                        std.display();
+                        std.displayDetails();
                         std.menu();
                     }
                     displayMenu = true;
@@ -161,36 +160,26 @@ public class TimeManagementMain
                         } else if (optionNum == 2) {
                             while (true) {
                                 clearTerminal();
-                                std.display();
+                                std.displayDetails();
                                 std.menu();
                                 course.enrollCourse(std);
-                                int choice = JOptionPane.showConfirmDialog(null, " Would you like to register another course?", "Confirmation", JOptionPane.YES_NO_OPTION);
+                                int choice = JOptionPane.showConfirmDialog(null, "Would you like to register another course?", "Confirmation", JOptionPane.YES_NO_OPTION);
                                 clearTerminal();
                                 if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
                                     break;
-                                } else {
-                                    std.display();
-                                    std.menu();
                                 }
                             }
                         } else if (optionNum == 3) {
                             while (true) {
                                 clearTerminal();
-                                std.display();
+                                std.displayDetails();
                                 std.menu();
                                 boolean valid = course.dropCourse(std);
                                 if (valid) {
                                     int choice = JOptionPane.showConfirmDialog(null, "Would you like to drop another course?", "Confirmation", JOptionPane.YES_NO_OPTION);
-                                    System.out.print('\u000c');
                                     if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
                                         break;
-                                    } else {
-                                        std.display();
-                                        std.menu();
                                     }
-                                } else {
-                                    displayMenu = false;
-                                    break;
                                 }
                             }
                         } else if (optionNum == 4) {

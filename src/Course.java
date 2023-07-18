@@ -41,7 +41,7 @@ public class Course
     }
 
     public String toString(boolean sentinel) {
-        String line = null;
+        String line;
         if (sentinel) {
             System.out.println("--------------------------------------");
             line = String.format("| %s | %9s | %5s | %5s |", course, day, startTime, endTime);
@@ -52,8 +52,6 @@ public class Course
     }
 
     public void displayCourse(int selection, User std) {
-        String FILE_COURSE = "Course.txt";
-        String FILE_DATABASE = "database.txt";
         if (selection == 1) {
             System.out.println("[1][ADD COURSE]");
         } else if (selection == 2) {
@@ -63,15 +61,15 @@ public class Course
         }
         System.out.println("======================================");
         System.out.println("| COURSE |       DAY | START |   END |");
-        BufferedReader reader = null;
+        BufferedReader reader;
         ArrayList<String> courses = new ArrayList<>();
         ArrayList<String> database = new ArrayList<>();
         try {
             int num = 0;
             int count = 0;
-            String line = null;
+            String line;
             if (selection == 3) {
-                reader = new BufferedReader(new FileReader(FILE_DATABASE));
+                reader = PropertiesReader.PropertiesCall("data");
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split(",");
                     if (parts[0].equals(std.ID)) {
@@ -80,13 +78,13 @@ public class Course
                 }
                 reader.close();
             }
-            reader = new BufferedReader(new FileReader(FILE_COURSE));
+            reader = PropertiesReader.PropertiesCall("course");
             while ((line = reader.readLine()) != null) {
                 count++;
             }
             reader.close();
             Course[] courseArr = new Course[count];
-            reader = new BufferedReader(new FileReader(FILE_COURSE));
+            reader = PropertiesReader.PropertiesCall("course");
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 courseArr[num++] = new Course(parts[0], parts[1], parts[2], parts[3]);
@@ -130,8 +128,8 @@ public class Course
                 day = scan.next();
                 day = day.toUpperCase();
                 String[] days = {"MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"};
-                for (int i = 0; i < days.length; i++) {
-                    if (day.equalsIgnoreCase(days[i])) {
+                for (String s : days) {
+                    if (day.equalsIgnoreCase(s)) {
                         validDay = true;
                         break;
                     }
@@ -149,20 +147,16 @@ public class Course
                 }
                 String[] splitStartTime = startTime.split(":");
                 int startHour;
-                int startMinute;
                 try {
                     startHour = Integer.parseInt(splitStartTime[0]);
-                    startMinute = Integer.parseInt(splitStartTime[1]);
                 } catch (NumberFormatException NFE) {
                     JOptionPane.showMessageDialog(null,"Incorrect input! Please enter a valid numeric value","Alert",JOptionPane.WARNING_MESSAGE);
                     continue;
                 }
                 if (startHour < 8) {
                     JOptionPane.showMessageDialog(null,"The minimum allowed is 8:00 a.m.!","Alert",JOptionPane.WARNING_MESSAGE);
-                    continue;
                 } else if (startHour > 17) {
                     JOptionPane.showMessageDialog(null,"The maximum allowed is 5:00 p.m.!","Alert",JOptionPane.WARNING_MESSAGE);
-                    continue;
                 } else {
                     break;
                 }
@@ -174,32 +168,28 @@ public class Course
                     JOptionPane.showMessageDialog(null,"Incorrect format! Please enter in HH:MM format","Alert",JOptionPane.WARNING_MESSAGE);
                     continue;
                 }
-                String[] splitStartTime = startTime.split(":");
+                String[] splitStartTime = endTime.split(":");
                 int endHour;
-                int endMinute;
                 try {
                     endHour = Integer.parseInt(splitStartTime[0]);
-                    endMinute = Integer.parseInt(splitStartTime[1]);
                 } catch (NumberFormatException NFE) {
                     JOptionPane.showMessageDialog(null,"Incorrect input! Please enter a valid numeric value","Alert",JOptionPane.WARNING_MESSAGE);
                     continue;
                 }
                 if (endHour < 9) {
                     JOptionPane.showMessageDialog(null,"The minimum allowed is 9:00 a.m.!","Alert",JOptionPane.WARNING_MESSAGE);
-                    continue;
                 } else if (endHour > 18) {
                     JOptionPane.showMessageDialog(null,"The maximum allowed is 6:00 p.m.!","Alert",JOptionPane.WARNING_MESSAGE);
-                    continue;
                 } else {
                     break;
                 }
             }
-            BufferedReader reader = null;
-            BufferedWriter writer = null;
+            BufferedReader reader;
+            BufferedWriter writer;
             boolean courseExist = false;
             try {
-                reader = new BufferedReader(new FileReader(FILE_COURSE));
-                String line = null;
+                reader = PropertiesReader.PropertiesCall("course");
+                String line;
                 while ((line = reader.readLine()) != null) { // Check for similar course and its element
                     String[] parts = line.split(",");
                     if (parts[0].equals(course)) {
@@ -235,15 +225,12 @@ public class Course
                 dayMap.put("FRIDAY", 4);
                 dayMap.put("SATURDAY", 5);
                 dayMap.put("SUNDAY", 6);
-                Collections.sort(courseList, new Comparator<String>()
-                {
-                    public int compare(String course1, String course2) {
-                        String[] courseArr1 = course1.split(",");
-                        String[] courseArr2 = course2.split(",");
-                        int day1 = dayMap.get(courseArr1[1]);
-                        int day2 = dayMap.get(courseArr2[1]);
-                        return Integer.compare(day1, day2);
-                    }
+                courseList.sort((course1, course2) -> {
+                    String[] courseArr1 = course1.split(",");
+                    String[] courseArr2 = course2.split(",");
+                    int day1 = dayMap.get(courseArr1[1]);
+                    int day2 = dayMap.get(courseArr2[1]);
+                    return Integer.compare(day1, day2);
                 });
                 writer = new BufferedWriter(new FileWriter(FILE_COURSE)); // Write the arranged data into Course.txt
                 for (String course : courseList) {
@@ -264,28 +251,24 @@ public class Course
         } while (proceed);
     }
 
-    public void enrollCourse(Student std) { // Student: REGISTER FOR COURSES
-        String FILE_COURSE = "Course.txt";
-        String FILE_DATABASE = "database.txt";
-        String ID = std.ID;
-        String name = std.name;
-        boolean displayMenu = false;
-        boolean successfulRegister = false;
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
+    public void enrollCourse(Student student) { // Student: REGISTER FOR COURSES
+        String FILE_DATABASE = "data/database.txt";
+        String ID = student.getID();
+        String name = student.getName();
+        BufferedReader reader;
+        BufferedWriter writer;
         Scanner scan = new Scanner(System.in);
         try {
-            displayCourse(2, std);
+            displayCourse(2, student);
             boolean repeatCourse = true;
-            boolean courseFound = false;
+            boolean courseFound;
             do {
                 int courseCount = 0;
-                int totalCourses = 0;
                 ArrayList<String> courseSet = new ArrayList<>();
                 ArrayList<String> databaseSet = new ArrayList<>();
                 ArrayList<String> databaseOfID = new ArrayList<>();
                 ArrayList<String> convertDatabaseToArray = new ArrayList<>();
-                Set<String> registeredDatabase = new HashSet<String>();
+                Set<String> registeredDatabase = new HashSet<>();
                 Map<String, Integer> dayMap = new HashMap<>();
                 dayMap.put("MONDAY", 0);
                 dayMap.put("TUESDAY", 1);
@@ -294,16 +277,14 @@ public class Course
                 dayMap.put("FRIDAY", 4);
                 dayMap.put("SATURDAY", 5);
                 dayMap.put("SUNDAY", 6);
-                reader = new BufferedReader(new FileReader(FILE_COURSE));
+                reader = PropertiesReader.PropertiesCall("course");
                 String line = reader.readLine();
                 while (line != null) {
-                    String[] parts = line.split(",");
-                    String course = parts[0];
                     courseSet.add(line);
                     line = reader.readLine();
                 }
                 reader.close();
-                reader = new BufferedReader(new FileReader(FILE_DATABASE));
+                reader = PropertiesReader.PropertiesCall("data");
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split(",");
                     String studentID = parts[0];
@@ -313,12 +294,10 @@ public class Course
                     }
                     databaseSet.add(line);
                 }
-                Collections.sort(databaseSet, new Comparator<String>() {
-                    public int compare(String line1, String line2) {
-                        String[] parts1 = line1.split(",");
-                        String[] parts2 = line2.split(",");
-                        return parts1[0].compareTo(parts2[0]);
-                    }
+                databaseSet.sort((line1, line2) -> {
+                    String[] parts1 = line1.split(",");
+                    String[] parts2 = line2.split(",");
+                    return parts1[0].compareTo(parts2[0]);
                 });
                 writer = new BufferedWriter(new FileWriter(FILE_DATABASE));
                 for (String database : databaseSet) {
@@ -335,17 +314,13 @@ public class Course
                         }
                     }
                 }
-                for (String hashDatabase : registeredDatabase) {
-                    convertDatabaseToArray.add(hashDatabase);
-                }
-                Collections.sort(convertDatabaseToArray, new Comparator<String>() {
-                    public int compare(String course1, String course2) {
-                        String[] course1Arr = course1.split(",");
-                        String[] course2Arr = course2.split(",");
-                        int day1 = dayMap.get(course1Arr[1]);
-                        int day2 = dayMap.get(course2Arr[1]);
-                        return Integer.compare(day1, day2);
-                    }
+                convertDatabaseToArray.addAll(registeredDatabase);
+                convertDatabaseToArray.sort((course1, course2) -> {
+                    String[] course1Arr = course1.split(",");
+                    String[] course2Arr = course2.split(",");
+                    int day1 = dayMap.get(course1Arr[1]);
+                    int day2 = dayMap.get(course2Arr[1]);
+                    return Integer.compare(day1, day2);
                 });
                 reader.close();
                 if (courseCount == courseSet.size()) {
@@ -356,7 +331,7 @@ public class Course
                 System.out.print("CHOOSE A COURSE: ");
                 String course = scan.nextLine();
                 course = course.toUpperCase();
-                reader = new BufferedReader(new FileReader(FILE_COURSE));
+                reader = PropertiesReader.PropertiesCall("course");
                 line = reader.readLine();
                 while(line != null) {
                     String[] parts = line.split(",");
@@ -367,18 +342,17 @@ public class Course
                 }
                 reader.close();
                 if (courseFound) {
-                    reader = new BufferedReader(new FileReader(FILE_DATABASE));
+                    reader = PropertiesReader.PropertiesCall("data");
                     line = reader.readLine();
-                    boolean databaseEmpty = false;
-                    successfulRegister = false;
                     String newRecord = (ID + "," + name + "," + course);
+                    boolean databaseEmpty = false;
+
                     int count = 0;
-                    if (line == null) {
+                    if (line == null || line.equals("")) {
                         databaseEmpty = true;
                     } else {
-                        String[] parts = line.split(",");
                         while (line != null) {
-                            parts = line.split(",");
+                            String[] parts = line.split(",");
                             if (parts[0].equals(ID)) {
                                 line = reader.readLine();
                                 count++;
@@ -388,16 +362,16 @@ public class Course
                         }
                     }
                     reader.close();
-                    reader = new BufferedReader(new FileReader(FILE_DATABASE));
+
+                    reader = PropertiesReader.PropertiesCall("data");
                     line = reader.readLine();
                     if (count == 0 || databaseEmpty) {
                         writer = new BufferedWriter(new FileWriter(FILE_DATABASE, true));
                         writer.write(newRecord);
                         writer.newLine();
-                        JOptionPane.showMessageDialog(null,"Course registered successfully!","Information",JOptionPane.INFORMATION_MESSAGE);
                         writer.close();
+                        JOptionPane.showMessageDialog(null,"Course registered successfully!","Information",JOptionPane.INFORMATION_MESSAGE);
                         repeatCourse = false;
-                        successfulRegister = true;
                     } else {
                         do {
                             String[] parts = line.split(",");
@@ -441,7 +415,6 @@ public class Course
                                         JOptionPane.showMessageDialog(null,"Course registered successfully!","Information",JOptionPane.INFORMATION_MESSAGE);
                                         writer.close();
                                         repeatCourse = false;
-                                        successfulRegister = true;
                                     }
                                 } else {
                                     line = reader.readLine();
@@ -462,21 +435,21 @@ public class Course
         }
     }
 
-    public boolean dropCourse(User std) { // STUDENT
-        String FILE_DATABASE = "database.txt";
+    public boolean dropCourse(Student student) { // STUDENT
+        String FILE_DATABASE = "data/database.txt";
         Scanner scan = new Scanner(System.in);
         ArrayList<String> database = new ArrayList<>();
         boolean dropCourse = true;
         boolean repeatDropCourse = false;
         do {
             repeatDropCourse = false;
-            BufferedReader reader = null;
+            BufferedReader reader;
             try {
-                reader = new BufferedReader(new FileReader(FILE_DATABASE));
+                reader = PropertiesReader.PropertiesCall("data");
                 String line = reader.readLine();
                 while (line != null) {
                     String[] parts = line.split(",");
-                    if (parts[0].equals(std.ID)) {
+                    if (parts[0].equals(student.ID)) {
                         database.add(parts[0]);
                     }
                     line = reader.readLine();
@@ -494,7 +467,7 @@ public class Course
                     }
                 }
                 reader.close();
-                displayCourse(3, std);
+                displayCourse(3, student);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
@@ -504,7 +477,7 @@ public class Course
             course = course.toUpperCase();
             for (int i = 0; i < database.size(); i++) {
                 String[] parts = database.get(i).split(",");
-                if (parts[0].equals(std.ID) && course.equals(parts[2])) {
+                if (parts[0].equals(student.ID) && course.equals(parts[2])) {
                     database.remove(i);
                     JOptionPane.showMessageDialog(null,"Course dropped successfully!","Information",JOptionPane.INFORMATION_MESSAGE);
                     successfulDrop = true;
@@ -517,7 +490,7 @@ public class Course
                     BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_DATABASE, false));
                     for (String overwriteDatabase : database) {
                         writer.write(overwriteDatabase);
-                        writer.newLine(); // overwrite the database
+                        writer.newLine();
                     }
                     writer.flush();
                     writer.close();

@@ -1,11 +1,10 @@
 package src;
 
-import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class Staff extends User
-{
+public class Staff extends User {
+    private String position;
     public Staff() {
         super();
     }
@@ -14,9 +13,12 @@ public class Staff extends User
         this.ID = ID;
     }
 
-    public Staff(String ID, String name) {
-        this.ID = ID;
-        this.name = name;
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     public void setData(String ID, String name) {
@@ -27,14 +29,31 @@ public class Staff extends User
     public String getID() {
         return ID;
     }
+    public void setStaffID(String ID) { this.ID = ID; }
 
     public String getName() {
         return name;
     }
 
-    public void display() {
+    public void displayDetails() {
         System.out.println("Staff ID: " + ID);
         System.out.println("Staff Name: " + name);
+        try {
+            String line;
+            BufferedReader reader = PropertiesReader.PropertiesCall("staffdata");
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+
+                if (parts[0].equals(ID)) {
+                    setPosition(parts[2]);
+                    break;
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        System.out.println("Staff Position: " + getPosition());
     }
 
     @Override
@@ -51,11 +70,9 @@ public class Staff extends User
     @Override
     public boolean verificationID()
     {
-        boolean verificationStatus = false;
-        boolean foundID = false;
-        BufferedReader reader = null;
+        boolean verificationStatus = false, foundID = false;
         try {
-            reader = new BufferedReader(new FileReader("userDatabase.txt"));
+            BufferedReader reader = PropertiesReader.PropertiesCall("userdata");
             int lineCount = 0;
             String line = reader.readLine();
             while (line != null) {
@@ -64,7 +81,7 @@ public class Staff extends User
             }
             reader.close();
             int count = 0;
-            reader = new BufferedReader(new FileReader("userDatabase.txt"));
+            reader = PropertiesReader.PropertiesCall("userdata");
             line = reader.readLine();
             while (count < lineCount && !foundID) {
                 String[] parts = line.split(",");

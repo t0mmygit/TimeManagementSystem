@@ -8,7 +8,7 @@ public abstract class User
     protected String ID;
     protected String name;
     public abstract void menu();
-    public abstract void display();
+    public abstract void displayDetails();
     public abstract boolean verificationID();
 
     public User() {
@@ -16,7 +16,7 @@ public abstract class User
         name = null;
     }
 
-    public void greet()
+    public static void greet()
     {
         System.out.println("*****************************************************");
         System.out.println("*                  WELCOME TO                       *");
@@ -24,7 +24,7 @@ public abstract class User
         System.out.println("*****************************************************");
     }
 
-    public int askVerify()
+    public static int chooseOccupation()
     {
         String[] button = {"Staff", "Student"};
         int option = JOptionPane.showOptionDialog(null, "CHOOSE YOUR OCCUPATION\n(click (x) to exit the program)", "Verification",JOptionPane.DEFAULT_OPTION,
@@ -38,6 +38,17 @@ public abstract class User
         return selection;
     }
 
+    public String insertUserID(int selection)
+    {
+        Scanner scan = new Scanner(System.in);
+        if (selection == 1) {
+            System.out.print("Enter Staff ID: ");
+        } else if (selection == 2) {
+            System.out.print("Enter Student ID: ");
+        }
+        return scan.nextLine();
+    }
+
     public String userID(int selection)
     {
         Scanner scan = new Scanner(System.in);
@@ -45,6 +56,7 @@ public abstract class User
             System.out.print("Enter Staff ID: ");
         } else if (selection == 2) {
             System.out.print("Enter Student ID: ");
+
         }
         ID = scan.nextLine();
         return ID;
@@ -54,7 +66,6 @@ public abstract class User
         int result = JOptionPane.showConfirmDialog(null,"Are you sure you would like to logout?","Logout",JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             JOptionPane.showMessageDialog(null,"You've been logged out!","Alert",JOptionPane.WARNING_MESSAGE);
-            System.out.print('\u000c');
         }
         return result;
     }

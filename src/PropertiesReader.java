@@ -8,7 +8,7 @@ public class PropertiesReader {
         Properties properties = new Properties();
         BufferedReader reader = null;
 
-        try (FileInputStream fis = new FileInputStream("Time Management System/config.properties")) { properties.load(fis);
+        try (FileInputStream fis = new FileInputStream("config.properties")) { properties.load(fis);
             File DATABASE = new File(properties.getProperty(fileString));
 
             reader = new BufferedReader(new FileReader(DATABASE));

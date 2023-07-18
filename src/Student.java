@@ -1,11 +1,11 @@
 package src;
 
-import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class Student extends User
-{
+public class Student extends User {
+    protected int semester;
+    protected StudentType studentType;
     public Student() {
         super();
     }
@@ -13,21 +13,36 @@ public class Student extends User
     public Student(String ID) {
         this.ID = ID;
     }
-
-    public void setData(String ID, String name) {
+    public Student(String ID, String name) {
         this.ID = ID;
         this.name = name;
+    }
+
+    public int getSemester() {
+        return semester;
+    }
+
+    public void setSemester(int semester) {
+        this.semester = semester;
     }
 
     public String getID () {
         return ID;
     }
 
+    public void setStudentID(String studentID) { this.ID = studentID; }
+
     public String getName() {
         return name;
     }
 
-    public void display() {
+    public void setStudentName(String studentName) { this.name = studentName; }
+
+    public StudentType getStudentType() { return studentType; }
+
+    public void setStudentType(StudentType studentType) { this.studentType = studentType; }
+
+    public void displayDetails() {
         System.out.println("Student ID: " + ID);
         System.out.println("Student Name: " + name);
     }
@@ -44,32 +59,24 @@ public class Student extends User
     }
 
     @Override
-    public boolean verificationID()
-    {
+    public boolean verificationID() {
         boolean verificationStatus = false;
-        boolean foundID = false;
-        BufferedReader reader = null;
+
         try {
-            reader = new BufferedReader(new FileReader("userDatabase.txt"));
-            int lineCount = 0;
-            String line = reader.readLine();
-            while (line != null) {
-                lineCount++;
-                line = reader.readLine();
-            }
-            reader.close();
-            int count = 0;
-            reader = new BufferedReader(new FileReader("userDatabase.txt"));
-            line = reader.readLine();
-            while (count < lineCount && !foundID) {
+            BufferedReader reader = PropertiesReader.PropertiesCall("studentdata");
+
+            String line;
+            while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts[0].equals(ID) && parts[2].equals("2")) {
-                    setData(parts[0], parts[1]);
-                    foundID = true;
+
+                if (parts[0].equals(ID)) {
+                    setStudentID(parts[0]);
+                    setStudentName(parts[1]);
+                    StudentType studentTypePart = StudentType.valueOf(parts[2]);
+                    setStudentType(studentTypePart);
+                    setSemester(Integer.parseInt(parts[4]));
+
                     verificationStatus = true;
-                } else {
-                    count++;
-                    line = reader.readLine();
                 }
             }
             reader.close();
